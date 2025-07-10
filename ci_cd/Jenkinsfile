@@ -1,0 +1,24 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Build Docker Images') {
+      steps {
+        script {
+          def services = ['auth-service', 'cart-service', 'product-service', 'payment-service']
+          for (s in services) {
+            sh "docker build -t nagy/${s}:latest ./app/${s}"
+            sh "docker push nagy/${s}:latest"
+          }
+        }
+      }
+    }
+
+    stage('Update K8s YAML') {
+      steps {
+        sh 'git clone https://github.com/your/Scalable_Microservices_ecommerce_Application.git'
+        sh 'git commit -am "Update image tag" && git push'
+      }
+    }
+  }
+}
