@@ -12,7 +12,8 @@ public class ProductController {
         model.addAttribute("products", List.of(
             new Product("Laptop", 999.99, "/images/laptop.jpg"),
             new Product("Phone", 699.99, "/images/phone.jpg"),
-            new Product("Headphones", 149.99, "/images/headphones.jpg")
+            new Product("Headphones", 149.99, "/images/headphones.jpg"),
+            new Product("Tv", 400, "/images/tv.jpg")
         ));
         return "index";
     }

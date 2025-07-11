@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const productName = this.parentElement.querySelector('.card-title').textContent;
             alert(`Added ${productName} to cart!`);
-            // Add actual cart logic here
         });
     });
 });
