@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     DOCKER_HUB_USERNAME = credentials('docker-hub-username')
-    DOCKER_HUB_PASSWORD = credentials('docker-hub-pass')
+    DOCKER_HUB_PASSWORD = credentials('docker-hub-password')
   }
 
   stages {
@@ -15,9 +15,11 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        sh '''
-          docker build -t ${DOCKER_HUB_USERNAME}/ecommerce-app:latest .
-        '''
+        dir('ci_cd') {
+          sh '''
+            docker build -t ${DOCKER_HUB_USERNAME}/ecommerce-app:latest .
+          '''
+        }
       }
     }
 
