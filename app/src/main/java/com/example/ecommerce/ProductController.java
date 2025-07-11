@@ -7,7 +7,6 @@ import java.util.List;
 
 @Controller
 public class ProductController {
-    
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("products", List.of(
