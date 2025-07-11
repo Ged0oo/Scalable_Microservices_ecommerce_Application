@@ -1,7 +1,7 @@
 pipeline {
   agent any
   environment {
-    DOCKER_HUB_PASSWORD = credentials('docker-hub-password')
+    DOCKER_HUB_PASSWORD = credentials('docker-hub-password') // Secret text
   }
   stages {
     stage('Deploy via Ansible') {
