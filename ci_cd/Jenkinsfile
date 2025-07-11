@@ -8,12 +8,12 @@ pipeline {
       steps {
         withCredentials([file(credentialsId: 'spring-ec2-key', variable: 'KEY')]) {
           dir('ci_cd') {
-            sh '''
+            sh """
               ansible-playbook -i ../infra/ansible/hosts.ini ../infra/ansible/deploy_app.yml \
               --private-key "$KEY" \
               --extra-vars "docker_hub_password=${DOCKER_HUB_PASSWORD}" \
               -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
-            '''
+            """
           }
         }
       }
