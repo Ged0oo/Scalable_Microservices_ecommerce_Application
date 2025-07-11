@@ -1,11 +1,23 @@
 pipeline {
   agent any
+
+  environment {
+    DOCKER_HUB_PASSWORD = credentials('docker-hub-password') // Replace with your Jenkins credential ID
+  }
+
   stages {
     stage('Deploy via Ansible') {
       steps {
-        sh '''
-          ansible-playbook -i infra/ansible/hosts.ini infra/ansible/deploy_app.yml --extra-vars "docker_hub_password=${DOCKER_HUB_PASSWORD}"
-        '''
+        dir('ci_cd') { 
+          sh '''
+            ansible-playbook \
+              -i ../infra/ansible/hosts.ini \
+              ../infra/ansible/deploy_app.yml \
+              --private-key ~/Downloads/spring.pem \
+              --extra-vars "docker_hub_password=${DOCKER_HUB_PASSWORD}" \
+              -e ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+          '''
+        }
       }
     }
   }
