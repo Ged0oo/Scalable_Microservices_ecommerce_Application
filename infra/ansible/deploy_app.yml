@@ -1,6 +1,6 @@
 - name: Deploy Dockerized E-commerce App
-  hosts: ec2
-  become: true
+  hosts: web
+  become: yes
   vars_files:
     - vars.yml 
 
