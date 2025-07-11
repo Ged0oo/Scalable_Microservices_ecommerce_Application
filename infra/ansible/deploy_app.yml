@@ -25,7 +25,7 @@
     - name: Log in to Docker Hub
       community.docker.docker_login:
         username: "{{ docker_hub_username }}"
-        password: "{{ docker_hub_password }}"
+        password: "{{ docker_hub_pass }}"
 
     - name: Stop and remove old container (if exists)
       community.docker.docker_container:
