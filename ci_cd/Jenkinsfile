@@ -2,6 +2,7 @@ pipeline {
   agent any
   environment {
     DOCKER_HUB_PASSWORD = credentials('docker-hub-password')
+    DOCKER_HUB_USERNAME = credentials('docker-hub-username')
   }
   stages {
     stage('Deploy via Ansible') {
@@ -12,7 +13,7 @@ pipeline {
               chmod 600 "$EC2_KEY_FILE"
               ansible-playbook -i ../infra/ansible/hosts.ini ../infra/ansible/deploy_app.yml \
                 --private-key "$EC2_KEY_FILE" \
-                --extra-vars "docker_hub_password=$DOCKER_HUB_PASSWORD" \
+                --extra-vars "docker_hub_username=$DOCKER_HUB_USERNAME docker_hub_password=$DOCKER_HUB_PASSWORD" \
                 -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
             '''
           }
