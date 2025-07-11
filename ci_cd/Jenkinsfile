@@ -1,21 +1,17 @@
 pipeline {
   agent any
-
   environment {
     DOCKER_HUB_PASSWORD = credentials('docker-hub-password')
   }
-
   stages {
     stage('Deploy via Ansible') {
       steps {
-        dir('ci_cd') { 
+        dir('ci_cd') {
           sh '''
-            ansible-playbook \
-              -i ../infra/ansible/hosts.ini \
-              ../infra/ansible/deploy_app.yml \
-              --private-key ~/Downloads/spring.pem \
-              --extra-vars "docker_hub_password=${DOCKER_HUB_PASSWORD}" \
-              -e ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+            ansible-playbook -i ../infra/ansible/hosts.ini ../infra/ansible/deploy_app.yml \
+            --private-key /var/lib/jenkins/Downloads/spring.pem \
+            --extra-vars "docker_hub_password=${DOCKER_HUB_PASSWORD}" \
+            -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
           '''
         }
       }
