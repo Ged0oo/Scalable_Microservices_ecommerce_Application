@@ -1,19 +1,20 @@
 pipeline {
   agent any
   environment {
-    DOCKER_HUB_PASSWORD = credentials('docker-hub-password') // Secret text
+    DOCKER_HUB_PASSWORD = credentials('docker-hub-password')
   }
   stages {
     stage('Deploy via Ansible') {
       steps {
-        withCredentials([file(credentialsId: 'spring-ec2-key', variable: 'KEY')]) {
+        withCredentials([file(credentialsId: 'spring-ec2-key', variable: 'EC2_KEY_FILE')]) {
           dir('ci_cd') {
-            sh """
+            sh '''
+              chmod 600 "$EC2_KEY_FILE"
               ansible-playbook -i ../infra/ansible/hosts.ini ../infra/ansible/deploy_app.yml \
-              --private-key "$KEY" \
-              --extra-vars "docker_hub_password=${DOCKER_HUB_PASSWORD}" \
-              -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
-            """
+                --private-key "$EC2_KEY_FILE" \
+                --extra-vars "docker_hub_password=$DOCKER_HUB_PASSWORD" \
+                -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
+            '''
           }
         }
       }
