@@ -1,10 +1,30 @@
 pipeline {
   agent any
   environment {
-    DOCKER_HUB_PASSWORD = credentials('docker-hub-pass')
     DOCKER_HUB_USERNAME = credentials('docker-hub-username')
+    DOCKER_HUB_PASSWORD = credentials('docker-hub-pass')
   }
   stages {
+
+    stage('Build Docker Image') {
+      steps {
+        dir('ci_cd') {
+          sh '''
+            docker build -t mnagy156/ecommerce-app:latest ../.
+          '''
+        }
+      }
+    }
+
+    stage('Push to Docker Hub') {
+      steps {
+        sh '''
+          echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+          docker push mnagy156/ecommerce-app:latest
+        '''
+      }
+    }
+
     stage('Deploy via Ansible') {
       steps {
         withCredentials([file(credentialsId: 'spring-ec2-key', variable: 'EC2_KEY_FILE')]) {
@@ -12,9 +32,9 @@ pipeline {
             sh '''
               chmod 600 "$EC2_KEY_FILE"
               ansible-playbook -i ../infra/ansible/hosts.ini ../infra/ansible/deploy_app.yml \
-                --private-key "$EC2_KEY_FILE" \
-                --extra-vars "docker_hub_username=$DOCKER_HUB_USERNAME docker_hub_pass=$DOCKER_HUB_PASSWORD" \
-                -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
+              --private-key "$EC2_KEY_FILE" \
+              --extra-vars "docker_hub_username=$DOCKER_HUB_USERNAME docker_hub_pass=$DOCKER_HUB_PASSWORD" \
+              -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
             '''
           }
         }
