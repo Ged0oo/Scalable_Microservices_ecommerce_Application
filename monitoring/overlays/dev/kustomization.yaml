@@ -1,0 +1,4 @@
+resources:
+  - ../../base/prometheus
+  - ../../base/grafana
+namespace: monitoring
