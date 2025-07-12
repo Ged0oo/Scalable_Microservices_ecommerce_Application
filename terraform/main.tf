@@ -9,7 +9,6 @@ resource "aws_key_pair" "deployer" {
   public_key = file("~/.ssh/spring.pub")
 }
 
-
 resource "aws_security_group" "web_sg" {
   name        = "web-sg"
   description = "Allow SSH, HTTP, HTTPS"
