@@ -1,13 +1,34 @@
 pipeline {
   agent any
+
   environment {
-    DOCKER_HUB_USERNAME = credentials('docker-hub-username') 
-    DOCKER_HUB_PASSWORD = credentials('docker-hub-pass') 
+    DOCKER_HUB_USERNAME = credentials('docker-hub-username')
+    DOCKER_HUB_PASSWORD = credentials('docker-hub-pass')
   }
+
   stages {
+
     stage('Checkout') {
       steps {
         checkout scm
+      }
+    }
+
+    stage('Terraform Apply') {
+      steps {
+        dir('terraform') {
+          sh 'terraform init'
+          sh 'terraform apply -auto-approve'
+        }
+      }
+    }
+
+    stage('Update Ansible Inventory') {
+      steps {
+        dir('infra/ansible') {
+          sh 'chmod +x update-hosts.sh'
+          sh './update-hosts.sh'
+        }
       }
     }
 
@@ -34,13 +55,15 @@ pipeline {
       }
       steps {
         withCredentials([file(credentialsId: 'spring-ec2-key', variable: 'EC2_KEY_FILE')]) {
-          sh '''
-            chmod 600 "$EC2_KEY_FILE"
-            ansible-playbook -i infra/ansible/hosts.ini infra/ansible/deploy_app.yml \
-              --private-key "$EC2_KEY_FILE" \
-              --extra-vars "docker_hub_username=${DOCKER_HUB_USERNAME} docker_hub_pass=${DOCKER_HUB_PASSWORD}" \
-              -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
-          '''
+          dir('infra/ansible') {
+            sh '''
+              chmod 600 "$EC2_KEY_FILE"
+              ansible-playbook -i hosts.ini deploy_app.yml \
+                --private-key "$EC2_KEY_FILE" \
+                --extra-vars "docker_hub_username=${DOCKER_HUB_USERNAME} docker_hub_pass=${DOCKER_HUB_PASSWORD}" \
+                -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
+            '''
+          }
         }
       }
     }

@@ -1,2 +1,4 @@
 infra/ansible/secrets.yml
 infra/ansible/vars.yml
+.terraform/
+.terraform.lock.hcl

@@ -5,17 +5,17 @@
     - vars.yml
 
   tasks:
-
-    - name: Ensure Docker is installed
+    - name: Install required system packages
       ansible.builtin.yum:
-        name: docker
+        name:
+          - docker
         state: present
 
     - name: Start Docker service
       ansible.builtin.service:
         name: docker
         state: started
-        enabled: yes
+        enabled: true
 
     - name: Add ec2-user to docker group
       ansible.builtin.user:
@@ -23,23 +23,27 @@
         groups: docker
         append: yes
 
+    - name: Reconnect SSH to apply group changes
+      ansible.builtin.meta: reset_connection
+
     - name: Log in to Docker Hub
       community.docker.docker_login:
         username: "{{ docker_hub_username }}"
         password: "{{ docker_hub_pass }}"
 
-    - name: Stop and remove old container if exists
+    - name: Stop and remove old container if it exists
       community.docker.docker_container:
         name: ecommerce-app
         state: absent
         force_kill: true
+      ignore_errors: yes
 
     - name: Remove old image (optional cleanup)
       community.docker.docker_image:
         name: "{{ docker_hub_username }}/ecommerce-app"
         tag: latest
         state: absent
-      ignore_errors: yes  # safe cleanup
+      ignore_errors: yes
 
     - name: Pull latest image from Docker Hub
       community.docker.docker_image:
